@@ -1,0 +1,812 @@
+# Decompiled with PyLingual (https://pylingual.io)
+# Internal filename: main.py
+# Bytecode version: 3.13.0rc3 (3571)
+# Source timestamp: 1970-01-01 00:00:00 UTC (0)
+
+global error  # inserted
+global options  # inserted
+global paused  # inserted
+import autoit
+from autoit import properties
+import requests as r
+import time as t
+import os
+import sys
+import random
+import subprocess
+if getattr(sys, 'frozen', False):
+    application_path = os.path.dirname(sys.executable)
+    file_name = os.path.basename(sys.executable)
+from colorama import Fore, Back, Style
+import json
+import psutil
+import threading
+from flask import Flask, render_template_string, request, Response
+import queue
+import re
+import keyboard
+from threading import Event, Thread
+import hashlib
+from ctypes.wintypes import *
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+error = False
+paused = False
+demo_mode = False
+version = '0.10.2'
+
+def autoClose():
+    print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.LIGHTRED_EX + Style.BRIGHT + '[EXIT]' + Style.RESET_ALL + ' Auto-closing in 10 seconds...')
+    t.sleep(10)
+    sys.exit(0)
+listen = Flask('listen')
+log_queue = queue.Queue()
+original_stdout = sys.stdout
+ansi_escape = re.compile('\\x1b\\[[0-9;]*[mK]')
+
+class QueueOutput:
+    def write(self, message):
+        message = message.decode('utf-8', errors='replace') if isinstance(message, bytes) else message
+        if message.strip():
+            clean_message = ansi_escape.sub('', message)
+            log_queue.put(clean_message)
+            original_stdout.write(message)
+        return None
+
+    def flush(self):
+        original_stdout.flush()
+message = ['Screw OMB, dead YouTuber', 'I\'m actually broke as hell', 'ECSR is actually kinda cool', 'I hate my life', 'Cyclone is my dad', 'Hijacking your Roblox cookies...', 'ADL better be a fire album', 'Screw Selenium Screw Screw Selenium Screw Selenium', 'Screw Flask, Screw Flask, Screw Flask', 'Why does computer science even exist??', '\"Better than DrivingPrawn\"™', 'Day 1 OPM BABI defender', 'Scottymuse44 hasn\'t paid me yet', 'VSRP live event soon...', 'X_DigitalNinja is a pedophile', 'Why is this taking so long to code??', 'I should be sleeping rn', 'I hate coding', 'I love coding', 'I want to die', 'Biodiversity is a waste', 'SORRY 4 DA WAIT', 'My fries ate mother', 'I\'m just ranting here at this point', '100% AI Generated', 'Guaranteed server filling or none of your money back!!!', ':kick all', 'Alting doesn\'t hurt anyone, who cares?', 'Not supported on MacOS and never will be', 'Why does this never work?', 'You need a job homeboy get off Roblox']
+options = Options()
+user_data_dir = os.path.expandvars('%LOCALAPPDATA%\\\\E')
+options.add_argument(f'--user-data-dir={user_data_dir}')
+options.add_argument('--profile-directory=AutoERLC Profile')
+options.add_argument('--window-size=400,400')
+options.add_argument('--no-first-run')
+options.add_argument('--no-default-browser-check')
+options.add_argument('--disable-extensions')
+options.add_argument('--disable-gpu')
+options.add_argument('--disable-dev-shm-usage')
+options.add_argument('--no-sandbox')
+options.add_argument('--disable-software-rasterizer')
+options.add_argument('--remote-debugging-port=9222')
+html_page = '\n<!DOCTYPE html>\n<html>\n\n<head>\n  <title>AutoERLC Terminal</title>\n  <link rel=\"icon\" type=\"image/x-icon\" href=\"https://i.ibb.co/7wtBbSJ/image.png\">\n  <style>\n    @import url(\'https://fonts.googleapis.com/css2?family=Heebo:wght@200&display=swap\');\n\n    body {\n      background: rgb(1, 0, 78);\n      color: white;\n      font-family: \'Heebo\', sans-serif;\n      text-align: center;\n      padding: 20px;\n    }\n\n    .navbar {\n      overflow: hidden;\n      background-color: #111;\n      padding: 10px;\n    }\n\n    .navbar p {\n      float: left;\n      margin: 0;\n      padding: 0 10px;\n      line-height: 32px;\n    }\n\n    .navbar-buttons {\n      float: right;\n      line-height: 32px;\n    }\n\n    .navbar-buttons a {\n      margin-left: 10px;\n      color: white;\n    }\n\n    .logo_button {\n      float: left;\n    }\n\n    #terminal {\n      background-color: black;\n      color: rgb(255, 255, 255);\n      padding: 10px;\n      font-family: monospace;\n      white-space: pre-wrap;\n      height: 300px;\n      overflow-y: auto;\n      border: 1px solid #ffffff;\n      margin-top: 10px;\n      text-align: left;\n      border-radius: 10px;\n    }\n\n    .boldhr {\n      height: 3px;\n      background: white;\n      border: none;\n      margin: 20px 0;\n    }\n\n    form {\n      text-align: left;\n      max-width: 400px;\n      margin: 0 auto;\n    }\n\n    .input-group {\n      display: flex;\n      align-items: center;\n      justify-content: center;\n      gap: 8px;\n      margin: 10px 0;\n    }\n\n    input[type=\"submit\"],\n    button {\n      padding: 10px 20px;\n      font-size: 16px;\n      margin-top: 10px;\n      cursor: pointer;\n    }\n\n    input[type=\'number\'] {\n      font-size: 16px;\n      color: white;\n      background-color: black;\n      padding: 5px;\n      border: 1px solid #aec8ff;\n      display: inline-block;\n      justify-content: right;\n      width: 40px;\n      border-radius: 10px;\n    }\n\n    input[type=\"number\"],\n    input[type=\"range\"] {\n      accent-color: #aec8ff;\n    }\n\n    input[type=\"range\"]::-webkit-slider-thumb {\n      cursor: ew-resize;\n    }\n\n    /* Firefox */\n    input[type=\"range\"]::-moz-range-thumb {\n      cursor: ew-resize;\n    }\n\n    /* IE */\n    input[type=\"range\"]::-ms-thumb {\n      cursor: ew-resize;\n    }\n\n    button,\n    input[type=\"submit\"],\n    input[type=\"text\"] {\n      background-color: #000000;\n      color: white;\n      border-radius: 10px;\n      border: 1px solid #aec8ff;\n    }\n\n    button:hover,\n    input[type=\"submit\"]:hover {\n      transition: 0.1s;\n      background-color: #555;\n    }\n\n    label {\n      font-size: 16px;\n      color: white;\n    }\n\n    button,\n    input[type=\'submit\'] {\n      border-radius: 10px;\n    }\n\n    input[type=\'text\'] {\n      border-radius: 5px;\n    }\n  </style>\n</head>\n\n<body>\n  <div class=\"navbar\">\n    <a href=\"https://discord.gg/u6SHu82yqh\" target=\"_blank\">\n      <img class=\"logo_button\" src=\"https://i.ibb.co/7wtBbSJ/image.png\" height=\"32\" width=\"32\">\n    </a>\n    <p>Developed by @cycl00ne_ on Discord</p>\n    <div class=\"navbar-buttons\">\n      <a href=\"https://discord.gg/u6SHu82yqh\" target=\"_blank\">Support</a>\n    </div>\n  </div>\n\n  <h1>AutoERLC Local Terminal Interface</h1>\n  <hr class=\"boldhr\">\n\n  <h3>Bot Info</h3>\n  <form method=\"POST\" action=\"/\">\n    <div class=\"input-group\">\n      <label for=\"serverCode\">Server Code:</label>\n      <input type=\"text\" id=\"serverCode\" name=\"serverCode\" required>\n    </div>\n    <div class=\"input-group\">\n      <label for=\"playersNum\">Number of Bots:</label>\n      <input type=\"range\" min=\"1\" max=\"40\" step=\"1\" value=\"20\" id=\"playersNum\" name=\"playersNum\" required\n        oninput=\"playersNumOutput.value = this.value\">\n      <input type=\"number\" min=\"1\" max=\"40\" step=\"1\" value=\"20\" id=\"playersNumOutput\" name=\"playersNumOutput\"\n        oninput=\"playersNum.value = this.value\">\n      <script>\n        // Keep range and number in sync on page load\n        const playersNum = document.getElementById(\'playersNum\');\n        const playersNumOutput = document.getElementById(\'playersNumOutput\');\n        playersNum.addEventListener(\'input\', () => {\n          playersNumOutput.value = playersNum.value;\n        });\n        playersNumOutput.addEventListener(\'input\', () => {\n          playersNum.value = playersNumOutput.value;\n        });\n      </script>\n    </div>\n    <div style=\"text-align:center\">\n      <input type=\"submit\" value=\"Send to Host\">\n    </div>\n  </form>\n\n  <hr>\n\n  <h3>Output Terminal</h3>\n  <button onclick=\"startFunction()\">Test Terminal Connection</button>\n  <button onclick=\"pause()\">Pause/Resume</button>\n  <div id=\"terminal\"></div>\n\n  <script>\n    const terminal = document.getElementById(\"terminal\");\n\n    function startFunction() {\n      fetch(\'/start\', { method: \'POST\' });\n    }\n\n    function pause() {\n      fetch(\'/pause\', { method: \'POST\' });\n    }\n\n    const source = new EventSource(\'/stream\');\n    source.onmessage = function (event) {\n      terminal.innerText += event.data + \'\\n\';\n      terminal.scrollTop = terminal.scrollHeight;\n    };\n  </script>\n</body>\n\n</html>\n'
+
+@listen.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        server_code = request.form.get('serverCode')
+        players_num = int(request.form.get('playersNum'))
+        print(Fore.WHITE + Style.BRIGHT + f"[{t.strftime('%H:%M:%S')}] " + Fore.YELLOW + Style.BRIGHT + '[INFO]' + Style.RESET_ALL + f' Server Code received: {server_code}')
+        print(Fore.WHITE + Style.BRIGHT + f"[{t.strftime('%H:%M:%S')}] " + Fore.YELLOW + Style.BRIGHT + '[INFO]' + Style.RESET_ALL + f' Number of Bots: {players_num}')
+        print(Fore.WHITE + Style.BRIGHT + f"[{t.strftime('%H:%M:%S')}] " + Fore.GREEN + Style.BRIGHT + '[SUCCESS]' + Style.RESET_ALL + ' Deploying bots...')
+        threading.Thread(target=overwriteFFlags).start()
+        threading.Thread(target=deployBots, args=(server_code, players_num)).start()
+    return render_template_string(html_page)
+
+@listen.route('/start', methods=['POST'])
+def start():
+    print(f"[{t.strftime('%H:%M:%S')}] 🟢 Ping recieved from client... If you can read this then the terminal is connected!")
+    return ('', 204)
+
+@listen.route('/pause', methods=['POST'])
+def pause():
+    global paused  # inserted
+    if paused:
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.CYAN + '[RESUME] Resuming bot actions.' + Style.RESET_ALL)
+        pause_event.set()
+    paused = not paused
+    return ('', 204)
+
+@listen.route('/stream')
+def stream():
+    def event_stream():
+        pass
+        msg = log_queue.get()
+        yield f'data: {msg}\n\n'
+    return Response(event_stream(), mimetype='text/event-stream')
+
+def start_web_terminal():
+    listenPort = load_config('listenPort')
+    print(f'[INFO] Starting web terminal interface on http://0.0.0.0:{listenPort}')
+    listen.run(debug=False, threaded=True, use_reloader=False, host='0.0.0.0', port={listenPort})
+
+def global_exception_handler(exc_type, exc_value, exc_traceback):
+    global error  # inserted
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+    return None
+sys.excepthook = global_exception_handler
+pause_event = Event()
+pause_event.set()
+
+def global_pause_listener():
+    try:
+        if not error:
+            if keyboard.is_pressed('ctrl') and keyboard.is_pressed('p'):
+                pause()
+                if keyboard.is_pressed('p'):
+                    t.sleep(0.1)
+            t.sleep(0.05)
+    except Exception as e:
+        print(Fore.RED + '[ERROR] Pause listener crashed: ' + str(e))
+        if not OSError:
+            t.sleep(10)
+            sys.exit()
+
+def load_usernames():
+    usernames_path = os.path.join(application_path, 'usernames.txt')
+    if not os.path.exists(usernames_path):
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.RED + Style.BRIGHT + '[ERROR]' + Style.RESET_ALL + f' usernames.txt not found at {usernames_path}, creating a new one and auto-filling it.')
+        ramPort = load_config('ramPort')
+        ramPassword = load_config('ramPassword')
+        try:
+            response = r.get(f'http://localhost:{ramPort}/GetAccounts?Password={ramPassword}', timeout=10)
+            if response.status_code == 200:
+                usernames_list = response.text.strip().split(',')
+                usernames_list = [u.strip() for u in usernames_list if u.strip()]
+                    with open(usernames_path, 'w', encoding='utf-8') as f:
+                        for username in usernames_list:
+                            f.write(username + '\n')
+                            print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.GREEN + Style.BRIGHT + '[SUCCESS]' + Style.RESET_ALL + f' Created usernames.txt with {len(usernames_list)} accounts.')
+                            f.close()
+        with open(usernames_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+            f.close()
+        return [line.strip().replace(' ', '') for line in lines if line.strip()]
+        except Exception as e:
+            print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.RED + Style.BRIGHT + '[ERROR]' + Style.RESET_ALL + f' Exception while fetching accounts: {e}')
+            sys.exit()
+
+def load_config(info):
+    global error  # inserted
+    config_path = os.path.join(application_path, 'configs.json')
+    if not os.path.exists(config_path):
+        with open(config_path, 'w', encoding='utf-8') as f:
+            default_config = {'serverPort': 8123, 'useLander': True, 'listenPort': 4000, 'waitType': 0, 'waitTime': 5, 'memoryThreshold': 95, 'ramPort': 'unspecified', 'ramPassword': 'unspecified', 'autoMinimize': False}
+            json.dump(default_config, f, indent=4)
+            f.close()
+    with open(config_path, 'r', encoding='utf-8') as f:
+        try:
+            data = json.load(f)
+            return data.get(info)
+    except Exception as e:
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.RED + Style.BRIGHT + '[ERROR]' + Style.RESET_ALL + f' {e}')
+        error = True
+        autoClose()
+
+def save_config(name, data):
+    config_path = os.path.join(application_path, 'configs.json')
+    if os.path.exists(config_path):
+        with open(config_path, 'r', encoding='utf-8') as f:
+            try:
+                existing_data = json.load(f)
+    if name == 'ramPort' or name == 'ramPassword':
+        existing_data[name] = str(data)
+    with open(config_path, 'w', encoding='utf-8') as f:
+        json.dump(existing_data, f, indent=4)
+    except json.JSONDecodeError:
+        existing_data = {}
+
+def clickOnScreen(x, y):
+    try:
+        autoit.mouse_click(x, y)
+        t.sleep(1)
+    except Exception as e:
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.RED + Style.BRIGHT + '[ERROR]' + Style.RESET_ALL + f' Error clicking on screen: {e}')
+
+def randomColor():
+    import random
+    number = random.randint(1, 16)
+    return (number == 1 and Fore.RED and (number == 2) and (number == 3) and (number == 5) and (number == 7) and (number == 8) and (number == BLACK) and (number == 9) and (number == LIGHTRED_EX) and (number == 10) and (number == LIGHTGREEN_EX) and (number == 11) and (number == LIGHTYELLOW_EX) and (number == 12) and (number == LIGHTBLUE_EX) and (number == 13) and (number == LIGHTMAGENTA_EX) and (number == 14) and (number == LIGHTCYAN_EX) and (number == 15) and (number == LIGHTWHITE_EX) and (number == 16) and (number == LIGHTBLACK_EX) and (number == <Code313 code object global_pause_listener at 0x73700ffdd490, file main.py>, line 382) and (number == <Code313 code object load_usernames at 0x73700ffdeb10, file main.py>, line 398) and (number == <Code313 code object load_config at 0x73700ffdf8d0, file main.py>, line 429) and
+pass
+def listRamConfiguration():
+    global ramPort  # inserted
+    global ramPassword  # inserted
+    ramPort = load_config('ramPort')
+    ramPassword = load_config('ramPassword')
+    box_width = 40
+    print('')
+    print(Style.RESET_ALL, end='')
+    top = '┌' + '─' * (box_width - 2) + '┐'
+    title = '│' + Style.BRIGHT + Back.WHITE + Fore.BLACK + ' RAM CONFIGURATION '.center(box_width - 2) + Style.RESET_ALL + '│'
+    sep = '├' + '─' * (box_width - 2) + '┤'
+    bottom = '└' + '─' * (box_width - 2) + '┘'
+    print(top)
+    print(title)
+    print(sep)
+    print(config_line('RAM Port', ramPort, box_width))
+    print(config_line('RAM Password', ramPassword, box_width))
+    print(bottom)
+    print(Fore.LIGHTBLACK_EX + Style.BRIGHT + '1. ' + Fore.LIGHTMAGENTA_EX + 'Change Configuration')
+    print(Fore.LIGHTBLACK_EX + Style.BRIGHT + '2. ' + Fore.WHITE + 'Go Back')
+    if input(Style.BRIGHT + Fore.CYAN + 'Select an option (1-2): ' + Style.RESET_ALL) == '1':
+        setupRam()
+    print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.YELLOW + Style.BRIGHT + '[INFO]' + Style.RESET_ALL + ' Returning...')
+
+def setupRam():
+    global ramPort  # inserted
+    global ramPassword  # inserted
+    ramPortInput = input(Fore.LIGHTMAGENTA_EX + Style.NORMAL + 'Enter the webserver port specified in Roblox Account Manager: ' + Style.RESET_ALL)
+    ramPort = ramPortInput if ramPortInput else ramPort
+    ramPasswordInput = input(Fore.LIGHTMAGENTA_EX + Style.NORMAL + 'Enter the webserver password specified in Roblox Account Manager: ' + Style.RESET_ALL)
+    ramPassword = ramPasswordInput if ramPasswordInput else ramPassword
+    save_config('ramPort', ramPort)
+    save_config('ramPassword', ramPassword)
+    print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.GREEN + Style.BRIGHT + '[SUCCESS]' + Style.RESET_ALL + ' Configuration updated.')
+    print('')
+    listRamConfiguration()
+
+def listRobloxConfiguration():
+    global autoMinimize  # inserted
+    autoMinimize = load_config('autoMinimize')
+    box_width = 65
+    print('')
+    print(Style.RESET_ALL, end='')
+    top = '┌' + '─' * (box_width - 2) + '┐'
+    title = '│' + Style.BRIGHT + Back.WHITE + Fore.BLACK + ' ROBLOX CONFIGURATION '.center(box_width - 2) + Style.RESET_ALL + '│'
+    sep = '├' + '─' * (box_width - 2) + '┤'
+    bottom = '└' + '─' * (box_width - 2) + '┘'
+    print(top)
+    print(title)
+    print(sep)
+    print(config_line('Usable Usernames', 'Configure this in the usernames.txt file.', box_width))
+    print(config_line('FFlags', 'Configure this in the fflags.json file.', box_width))
+    print(config_line('Auto Minimize', autoMinimize, box_width))
+    print(bottom)
+    print(Fore.LIGHTBLACK_EX + Style.BRIGHT + '1. ' + Fore.LIGHTMAGENTA_EX + 'Change Configuration')
+    print(Fore.LIGHTBLACK_EX + Style.BRIGHT + '2. ' + Fore.WHITE + 'Go Back')
+    if input(Style.BRIGHT + Fore.CYAN + 'Select an option (1-2): ' + Style.RESET_ALL) == '1':
+        setupRoblox()
+    return None
+
+def setupRoblox():
+    global autoMinimize  # inserted
+    input(Fore.LIGHTMAGENTA_EX + Style.NORMAL + 'Change usable usernames and FFlags in the usernames.txt and fflags.json files, respectively (enter to continue): ' + Style.RESET_ALL)
+    autoMinimizeInput = input(Fore.LIGHTMAGENTA_EX + Style.NORMAL + 'Enable auto-minimize after launch? (y/n, blank to leave as-is): ' + Style.RESET_ALL)
+    if autoMinimizeInput.lower() in ['yes', 'y', 'true', '1']:
+        autoMinimize = True
+    save_config('autoMinimize', autoMinimize)
+    print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.GREEN + Style.BRIGHT + '[SUCCESS]' + Style.RESET_ALL + ' Configuration updated.')
+    print('')
+    listRobloxConfiguration()
+
+def listAppConfiguration():
+    global waitTime  # inserted
+    global waitType  # inserted
+    global memoryThreshold  # inserted
+    global useLander  # inserted
+    global listenPort  # inserted
+    global serverPort  # inserted
+    serverPort = load_config('serverPort')
+    listenPort = load_config('listenPort')
+    waitType = load_config('waitType')
+    waitTime = load_config('waitTime')
+    memoryThreshold = load_config('memoryThreshold')
+    useLander = load_config('useLander')
+    box_width = 40
+    print('')
+    print(Style.RESET_ALL, end='')
+    top = '┌' + '─' * (box_width - 2) + '┐'
+    title = '│' + Style.BRIGHT + Back.WHITE + Fore.BLACK + ' APP CONFIGURATION '.center(box_width - 2) + Style.RESET_ALL + '│'
+    sep = '├' + '─' * (box_width - 2) + '┤'
+    bottom = '└' + '─' * (box_width - 2) + '┘'
+    print(top)
+    print(title)
+    print(sep)
+    print(config_line('Launch Server Port', serverPort, box_width))
+    print(config_line('Open Lander During Bots', useLander, box_width))
+    print(config_line('Interface Server Port', listenPort, box_width))
+    print(config_line('Launch Waiting Type', waitType, box_width))
+    print(config_line('Launch Cooldown', waitTime, box_width))
+    print(config_line('Memory Percentage Threshold', memoryThreshold, box_width))
+    print(bottom)
+    print(Fore.LIGHTBLACK_EX + Style.BRIGHT + '1. ' + Fore.LIGHTMAGENTA_EX + 'Change Configuration')
+    print(Fore.LIGHTBLACK_EX + Style.BRIGHT + '2. ' + Fore.WHITE + 'Go Back')
+    if input(Style.BRIGHT + Fore.CYAN + 'Select an option (1-2): ' + Style.RESET_ALL) == '1':
+        setupApp()
+    return None
+
+def setupApp():
+    global waitTime  # inserted
+    global waitType  # inserted
+    global memoryThreshold  # inserted
+    global useLander  # inserted
+    global listenPort  # inserted
+    global serverPort  # inserted
+    serverPortInput = input(Fore.LIGHTMAGENTA_EX + Style.NORMAL + 'Enter the desired account launching server port (blank to leave as-is): ' + Style.RESET_ALL)
+    serverPort = serverPortInput if serverPortInput else serverPort
+    useLanderInput = input(Fore.LIGHTMAGENTA_EX + Style.NORMAL + 'Open the web interface landing page when deploying bots normally? (normal means not listening mode, y/n): ' + Style.RESET_ALL)
+    if useLanderInput.lower() in ['yes', 'y', 'true', '1']:
+        useLander = True
+    listenPortInput = input(Fore.LIGHTMAGENTA_EX + Style.NORMAL + 'Enter the desired interface web server port (blank to leave as-is): ' + Style.RESET_ALL)
+    listenPort = listenPortInput if listenPortInput else listenPort
+    waitTypeInput = input(Fore.LIGHTMAGENTA_EX + Style.NORMAL + 'Enter the desired account launch wait type (0 for time, 1 for memory, 2 for both, blank to leave as-is): ' + Style.RESET_ALL)
+    waitType = waitTypeInput if waitTypeInput else waitType
+    waitTimeInput = input(Fore.LIGHTMAGENTA_EX + Style.NORMAL + 'Enter the desired account launch cooldown time in seconds (blank to leave as-is): ' + Style.RESET_ALL)
+    waitTime = waitTimeInput if waitTimeInput else waitTime
+    memoryThresholdInput = input(Fore.LIGHTMAGENTA_EX + Style.NORMAL + 'Enter the desired memory percentage threshold to continue launching accounts (number only, blank to leave as-is): ' + Style.RESET_ALL)
+    memoryThreshold = memoryThresholdInput if memoryThresholdInput else memoryThreshold
+    save_config('serverPort', serverPort)
+    save_config('listenPort', listenPort)
+    save_config('waitType', waitType)
+    save_config('waitTime', waitTime)
+    save_config('memoryThreshold', memoryThreshold)
+    save_config('useLander', useLander)
+    print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.GREEN + Style.BRIGHT + '[SUCCESS]' + Style.RESET_ALL + ' Configuration updated.')
+    print('')
+    listAppConfiguration()
+
+def config_line(label, value, box_width):
+    label_plain = label
+    value_plain = str(value)
+    label_str = f'{Style.BRIGHT + Fore.YELLOW}{label}{Style.RESET_ALL}: '
+    value_str = f'{Style.BRIGHT + Fore.WHITE}{value}{Style.RESET_ALL}'
+    visible_len = len(label_plain) + 2 + len(value_plain)
+    pad = box_width - 4 - visible_len
+    pad = 0 if pad < 0 else pad
+    return '│ ' + label_str + value_str + ' ' * pad + ' │'
+
+def listConfiguration():
+    box_width = 40
+    top = '┌' + '─' * (box_width - 2) + '┐'
+    title = '│' + Style.BRIGHT + Back.WHITE + Fore.BLACK + ' CONFIGURATION MENU '.center(box_width - 2) + Style.RESET_ALL + '│'
+    sep = '├' + '─' * (box_width - 2) + '┤'
+    bottom = '└' + '─' * (box_width - 2) + '┘'
+    print(top)
+    print(title)
+    print(sep)
+    print(option_line('1', Fore.YELLOW, ' RAM Configuration'))
+    print(option_line('2', Fore.RED, ' Roblox Configuration'))
+    print(option_line('3', Fore.BLUE, ' App Configuration'))
+    print(option_line('4', Fore.GREEN, ' Fix Auto-Launch'))
+    print(option_line('5', Fore.WHITE, ' Return to Main Menu'))
+    print(bottom)
+    choice = input(Style.BRIGHT + Fore.CYAN + 'Select an option (1-5): ' + Style.RESET_ALL)
+    if choice == '1':
+        listRamConfiguration()
+    roblox_uri = 'roblox-player://'
+    url = f'http://localhost:{serverPort}/launch?roblox_uri={roblox_uri}'
+    launcher = Flask(__name__)
+    import logging
+    from flask import redirect
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
+
+    @launcher.route('/launch')
+    def launchRoblox():
+        uri = request.args.get('roblox_uri')
+        return redirect(uri)
+
+    def runRobloxServer():
+        launcher.run(host='127.0.0.1', port=serverPort)
+    print('[*] Starting server...')
+    try:
+        threading.Thread(target=runRobloxServer, daemon=True).start()
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+        driver.get(url)
+        print()
+        t.sleep(1)
+        input('Press enter once you\'re done and Roblox has launched (you can close the Roblox app).')
+        driver.quit()
+        menu()
+    except OSError as e:
+        print(f'Failed to start Flask server: {e}')
+
+def load_fflags():
+    fflags_path = os.path.join(application_path, 'fflags.json')
+    if not os.path.exists(fflags_path):
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.RED + Style.BRIGHT + '[ERROR]' + Style.RESET_ALL + f' fflags.json not found at {fflags_path}, creating a new one with default values.')
+        with open(fflags_path, 'w', encoding='utf-8') as f:
+            f.write('{\"FLogNetwork\":\"7\",\"FFlagHandleAltEnterFullscreenManually\":\"False\",\"DFIntTaskSchedulerTargetFps\":\"5\",\"FIntRenderShadowIntensity\":\"0\",\"FFlagDisablePostFx\":\"True\",\"FIntTerrainArraySliceSize\":\"0\",\"FIntDebugForceMSAASamples\":\"1\",\"DFFlagTextureQualityOverrideEnabled\":\"True\",\"DFIntTextureQualityOverride\":\"0\",\"FIntFRMMinGrassDistance\":0,\"FIntFRMMaxGrassDistance\":0,\"FIntRenderGrassDetailStrands\":0,\"FIntRenderGrassHeightScaler\":0,\"DFIntCSGLevelOfDetailSwitchingDistance\":0,\"DFIntCSGLevelOfDetailSwitchingDistanceL12\":0,\"DFIntCSGLevelOfDetailSwitchingDistanceL23\":0,\"DFIntCSGLevelOfDetailSwitchingDistanceL34\":0,\"FIntRenderLocalLightUpdatesMax\":1,\"FIntRenderLocalLightUpdatesMin\":1,\"FFlagDebugSkyGray\":true,\"DFIntDebugFRMQualityLevelOverride\":1}')
+            print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.GREEN + Style.BRIGHT + '[SUCCESS]' + Style.RESET_ALL + f' Created fflags.json with default values at {fflags_path}')
+            load_fflags()
+    with open(fflags_path, 'r', encoding='utf-8') as f:
+        return f.read()
+
+def get_newest_version_folder(base_path):
+    try:
+        version_folders = [f for f in os.listdir(base_path) if f.startswith('version-') and os.path.isdir(os.path.join(base_path, f))]
+            if not version_folders:
+                pass  # postinserted
+            return None
+    except Exception:
+        return None
+
+def is_exe_running(exe_name):
+    for proc in psutil.process_iter(['name']):
+        try:
+            if proc.info['name'] and proc.info['name'].lower() == exe_name.lower():
+                break
+                return True
+    else:  # inserted
+        return False
+    except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+        pass
+
+def open_and_close_browser(roblox_uri):
+    pause_event.wait()
+    serverPort = load_config('serverPort')
+    import urllib
+    os.environ['WDM_LOG_LEVEL'] = '0'
+    encoded_uri = urllib.parse.quote(roblox_uri)
+    url = f'http://localhost:{serverPort}/launch?roblox_uri={encoded_uri}'
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    driver.get(url)
+    t.sleep(1)
+    driver.quit()
+
+def overwriteFFlags():
+    global fullFFlagsPath  # inserted
+    FFlags = load_fflags()
+    print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.YELLOW + Style.BRIGHT + '[INFO]' + Style.RESET_ALL + ' Using the following defined FFlags: ' + FFlags)
+    local_appdata = os.environ.get('LOCALAPPDATA')
+    found = False
+    for program in ['Bloxstrap', 'Roblox']:
+        base_path = os.path.join(local_appdata, program, 'Versions')
+        newest_version_folder = get_newest_version_folder(base_path)
+        if not newest_version_folder:
+            continue
+        client_settings_path = os.path.join(newest_version_folder, 'ClientSettings')
+        os.makedirs(client_settings_path, exist_ok=True)
+        fullFFlagsPath = os.path.join(client_settings_path, 'ClientAppSettings.json')
+        try:
+            with open(fullFFlagsPath, 'w') as f:
+                try:
+                    fflags_json = json.loads(FFlags)
+                    json.dump(fflags_json, f, indent=4)
+                    f.close()
+                    print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.LIGHTBLUE_EX + Style.BRIGHT + '[FOUND]' + Style.RESET_ALL + f' Version folder found for \'{program}\': {newest_version_folder}' + Style.RESET_ALL)
+                    print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.GREEN + Style.BRIGHT + '[SUCCESS]' + Style.RESET_ALL + f' File overwritten: {fullFFlagsPath}' + Style.RESET_ALL)
+                    found = True
+                    break
+    if not found:
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.RED + Style.BRIGHT + '[ERROR]' + Style.RESET_ALL + ' Could not find a valid version folder in either Bloxstrap or Roblox.')
+        if fullFFlagsPath:
+            print(f'Tried path: {fullFFlagsPath}')
+        return None
+    except json.JSONDecodeError, f.write(FFlags):
+        pass  # postinserted
+    except Exception as e:
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.RED + Style.BRIGHT + '[ERROR]' + Style.RESET_ALL + f' Failed to write to {fullFFlagsPath}: {e}')
+
+def resetFFlags():
+    global error  # inserted
+    try:
+        os.remove(fullFFlagsPath)
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.GREEN + Style.BRIGHT + '[SUCCESS]' + Style.RESET_ALL + f' File \'{fullFFlagsPath}\' deleted successfully.')
+        error = True
+    except Exception as e:
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.RED + Style.BRIGHT + '[ERROR]' + Style.RESET_ALL + f' {e}')
+        error = True
+        autoClose()
+
+def deployBots(serverCode, playersNum):
+    global usernames  # inserted
+    global error  # inserted
+    error = False
+    import requests
+    import urllib as redirect
+    from flask import redirect as playersNum
+    import webbrowser
+    import uuid as serverPort
+    from selenium import webdriver
+    from selenium.webdriver.chrome.options import Options
+    import urllib.parse
+    Thread(target=global_pause_listener, daemon=True).start()
+    ramPort = load_config('ramPort')
+    ramPassword = load_config('ramPassword')
+    launcher = load_config('serverPort')
+    waitType = load_config('waitType')
+    waitTime = load_config('waitTime')
+    memoryThreshold = load_config('memoryThreshold')
+    autoMinimize = load_config('autoMinimize')
+    useLander = load_config('useLander')
+    if is_exe_running('Roblox Account Manager.exe'):
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.GREEN + Style.BRIGHT + '[SUCCESS]' + Style.RESET_ALL + ' Detected that \"Roblox Account Manager.exe\" is running.')
+    print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.YELLOW + Style.BRIGHT + '[INFO]' + Style.RESET_ALL + ' Fetching accounts from Roblox Account Manager...')
+    if demo_mode:
+        demo_count = playersNum if 'playersNum' in globals() else 5
+        real_usernames = load_usernames()[:demo_count]
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.YELLOW + Style.BRIGHT + '[INFO]' + Style.RESET_ALL + f" Demo mode enabled. Using demo accounts: {', '.join([f'DemoAccount{i + 1}' for i in range(demo_count)])}")
+        usernames = real_usernames
+    if demo_mode:
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.YELLOW + Style.BRIGHT + '[INFO]' + Style.RESET_ALL + f" Accounts to be used: {[f'DemoAccount{i + 1}' for i in range(playersNum)]}")
+    if playersNum > len(usernames):
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.RED + Style.BRIGHT + '[ERROR]' + Style.RESET_ALL + ' Number of bots requested exceeds available accounts.')
+        autoClose()
+    serverCode = Flask(__name__)
+    import logging
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
+
+    @serverCode.route('/')
+    def index():
+        return render_template_string('\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <title>AutoERLC Terminal</title>\n  <link rel=\"icon\" type=\"image/x-icon\" href=\"https://i.ibb.co/7wtBbSJ/image.png\">\n  <style>\n    @import url(\'https://fonts.googleapis.com/css2?family=Heebo:wght@200&display=swap\');\n    body {\n      background: rgb(1, 0, 78);\n      color: white;\n      font-family: \'Heebo\', sans-serif;\n      text-align: center;\n      padding: 20px;\n    }\n    .navbar {\n      overflow: hidden;\n      background-color: #111;\n      padding: 5px;\n    }\n    .navbar p {\n      float: left;\n      margin: 0;\n      padding: 0 10px;\n      line-height: 32px;\n    }\n    .navbar-buttons {\n      float: right;\n      line-height: 32px;\n    }\n    .navbar-buttons a {\n      margin-left: 10px;\n      color: white;\n    }\n    .logo_button {\n      float: left;\n    }\n    .boldhr {\n      height: 3px;\n      background: white;\n      border: none;\n      margin: 20px 0;\n    }\n    .input-group {\n      display: flex;\n      align-items: center;\n      justify-content: center;\n      gap: 8px;\n      margin: 10px 0;\n    }\n    .num {\n      font-size: 16px;\n      color: white;\n      background-color: black;\n      padding: 5px;\n      border: 1px solid #aec8ff;\n      display: inline-block;\n      justify-content: right;\n      width: 40px;\n      border-radius: 10px;\n    }\n    .code {\n      background-color: #000000;\n      color: white;\n      border-radius: 5px;\n      border: 1px solid #aec8ff;\n    }\n  </style>\n</head>\n    <body>\n        <div class=\"navbar\">\n          <a href=\"https://discord.gg/u6SHu82yqh\" target=\"_blank\">\n            <img class=\"logo_button\" src=\"https://i.ibb.co/7wtBbSJ/image.png\" height=\"32\" width=\"32\" alt=\"Logo\">\n          </a>\n          <p>Developed by @cycl00ne_ on Discord</p>\n          <div class=\"navbar-buttons\">\n            <a href=\"https://discord.gg/u6SHu82yqh\" target=\"_blank\">Support</a>\n          </div>\n        </div>\n        <h1>AutoERLC Landing Page</h1>\n        <hr class=\"boldhr\">\n        <h3>Bot Info</h3>\n        <div class=\"input-group\">\n            <p>Server Code:<div class=\"code\"> {{ serverCode }}</div></p>\n        </div>\n        <div class=\"input-group\">\n            <p>Number of Players: <div class=\"num\">{{ playersNum }}</div></p>\n        </div>\n        <h3>The script is doing its magic. No intervention should be needed. Sit back and watch the show.</h3>\n      </body>\n</html>\n        ', serverCode=serverCode, playersNum=playersNum)
+
+    @serverCode.route('/launch')
+    def launchRoblox():
+        uri = request.args.get('roblox_uri')
+        return redirect(uri)
+
+    def runRobloxServer():
+        launcher.run(host='127.0.0.1', port=serverPort)
+    if __name__ == '__main__':
+        print('[*] Starting server...')
+        try:
+            threading.Thread(target=runRobloxServer, daemon=True).start()
+            t.sleep(1.5)
+    if False:
+        pass  # postinserted
+    for i in range(playersNum):
+        pause_event.wait()
+        display_name = f'DemoAccount{i + 1}' if demo_mode else usernames[i]
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.YELLOW + Style.BRIGHT + '[INFO]' + Style.RESET_ALL + f' Attempting to launch account {i + 1}/{playersNum}: {display_name}')
+        ROBLOSECURITY_COOKIE = requests.get(f'http://localhost:{ramPort}/GetCookie?Account={usernames[i]}&Password={ramPassword}').text.strip()
+        session = requests.Session()
+        session.headers.update({'User-Agent': 'Mozilla/5.0', 'Referer': 'https://www.roblox.com/home', 'Origin': 'https://www.roblox.com', 'Cookie': f'.ROBLOSECURITY={ROBLOSECURITY_COOKIE}'})
+        csrf_res = session.post('https://auth.roblox.com/v2/logout')
+        csrf_token = csrf_res.headers.get('x-csrf-token')
+        if not csrf_token:
+            print('[-] Failed to get X-CSRF-TOKEN, launching an extra account.')
+            i += 1
+        session.headers['X-CSRF-TOKEN'] = csrf_token
+        session.headers['Content-Type'] = 'application/json'
+        print('[*] Requesting Auth Ticket...')
+        auth_res = session.post('https://auth.roblox.com/v1/authentication-ticket')
+        auth_ticket = auth_res.headers.get('rbx-authentication-ticket')
+        if not auth_ticket:
+            print('[-] Auth ticket was not returned, launching an extra account.')
+            print('[Debug] Status Code:', auth_res.status_code)
+            print('[Debug] Headers:', auth_res.headers)
+            print('[Debug] Body:', auth_res.text)
+            i += 1
+
+        def generate_roblox_player_uri(auth_ticket, place_id, launch_data):
+            timestamp = int(t.time() * 1000)
+            browser_tracker_id = timestamp + 1
+            join_attempt_id = str(uuid.uuid4())
+            launch_data_json = launch_data if isinstance(launch_data, str) else str(launch_data).replace('\'', '\"')
+            encoded_launch_data = urllib.parse.quote(launch_data_json)
+            launcher_url = f'https://www.roblox.com/Game/PlaceLauncher.ashx?request=RequestGame&browserTrackerId={browser_tracker_id}&placeId={place_id}&launchData={encoded_launch_data}&isPlayTogetherGame=false&referredByPlayerId=0&joinAttemptId={join_attempt_id}&joinAttemptOrigin=PlayButton'
+            encoded_launcher_url = urllib.parse.quote(launcher_url)
+            uri = f'roblox-player:1+launchmode:play+gameinfo:{auth_ticket}+launchtime:{timestamp}+placelauncherurl:{encoded_launcher_url}+browsertrackerid:{browser_tracker_id}+robloxLocale:en_us+gameLocale:en_us+channel:'
+            return uri
+        roblox_uri = generate_roblox_player_uri(auth_ticket, place_id=2534724415, launch_data={'psCode': serverCode})
+        print('[*] Opening Roblox...')
+        print(roblox_uri)
+        open_and_close_browser(roblox_uri)
+        if autoMinimize:
+            t.sleep(1)
+            print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.YELLOW + Style.BRIGHT + '[INFO]' + Style.RESET_ALL + f' Auto-minimizing Roblox window for account {i + 1}/{playersNum}...')
+            autoit.win.win_set_state('Roblox', properties.SW_MINIMIZE)
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.GREEN + Style.BRIGHT + '[SUCCESS]' + Style.RESET_ALL + f' Successfully launched account {i + 1}/{playersNum}: {display_name}')
+        if waitType == 0:
+            print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.YELLOW + Style.BRIGHT + '[INFO]' + Style.RESET_ALL + f' Waiting for {waitTime} seconds before launching next account...')
+            t.sleep(waitTime)
+        else:  # inserted
+            if waitType == 1:
+                print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.YELLOW + Style.BRIGHT + '[INFO]' + Style.RESET_ALL + f' Waiting for memory usage to drop below {memoryThreshold}% before launching next account...')
+                pass
+                mem_usage = psutil.virtual_memory().percent
+                if mem_usage < memoryThreshold:
+                    pass  # postinserted
+                print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.GREEN + Style.BRIGHT + '[SUCCESS]' + Style.RESET_ALL + f' Memory usage is now {mem_usage}%, proceeding to launch next account.')
+            else:  # inserted
+                print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.RED + Style.BRIGHT + '[ERROR]' + Style.RESET_ALL + f' Memory usage is {mem_usage}%, trying again...')
+                t.sleep(3)
+            else:  # inserted
+                if waitType == 2:
+                    print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.YELLOW + Style.BRIGHT + '[INFO]' + Style.RESET_ALL + f' Waiting for {waitTime} seconds and memory usage to drop below {memoryThreshold}% before launching next account...')
+                    t.sleep(waitTime)
+                    pass
+                    mem_usage = psutil.virtual_memory().percent
+                    if mem_usage < memoryThreshold:
+                        pass  # postinserted
+                    print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.GREEN + Style.BRIGHT + '[SUCCESS]' + Style.RESET_ALL + f' Memory usage is now {mem_usage}%, proceeding to launch next account.')
+                else:  # inserted
+                    print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.RED + Style.BRIGHT + '[ERROR]' + Style.RESET_ALL + f' Memory usage is {mem_usage}%, trying again...')
+                    t.sleep(3)
+                else:  # inserted
+                    print(waitType)
+                    autoClose()
+    print()
+    if useLander:
+        pass  # postinserted
+    if False:
+        pass  # postinserted
+    resetFFlags()
+    print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.YELLOW + Style.BRIGHT + '[INFO]' + Style.RESET_ALL + ' All bots should be in. You will need to manually idle-check if needed.')
+    t.sleep(5)
+    menu()
+        except OSError as e:
+            print(f'Failed to start Flask server: {e}')
+
+def getDetails():
+    serverCode = input(Fore.WHITE + Style.NORMAL + 'Enter the server code: ' + Style.RESET_ALL)
+    playersNum = int(input(Fore.WHITE + Style.NORMAL + 'Enter the number of bots: ' + Style.RESET_ALL))
+    print()
+    confirm = input(Fore.MAGENTA + '[CONFIRM]' + Style.RESET_ALL + ' ' + Fore.LIGHTWHITE_EX + str(playersNum) + Style.RESET_ALL + ' bots to the server ' + Fore.LIGHTWHITE_EX + '\"' + serverCode + '\"' + Style.RESET_ALL + '.' + Fore.GREEN + ' Y/n: ' + Style.RESET_ALL)
+    if confirm == 'Y' or confirm == 'y':
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.LIGHTYELLOW_EX + Style.BRIGHT + '[INFO]' + Style.RESET_ALL + ' Initializing...')
+        overwriteFFlags()
+        deployBots(serverCode, playersNum)
+    print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.RED + Style.BRIGHT + '[ERROR]' + Style.RESET_ALL + ' Bad input or no, cancelled.' + Style.RESET_ALL)
+
+def startUp():
+    global ramPort  # inserted
+    global ramPassword  # inserted
+    config_path = os.path.join(application_path, 'configs.json')
+    if not os.path.exists(config_path):
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.RED + Style.BRIGHT + '[ERROR]' + Style.RESET_ALL + ' Configurations were not found. Use Option 4 to set up the configuration.')
+        menu()
+        ramPort = load_config('ramPort')
+        ramPassword = load_config('ramPassword')
+    getDetails()
+
+def networkListen():
+    sys.stdout = QueueOutput()
+    start_web_terminal()
+    for i in range(4):
+        start()
+        i += 1
+
+def checkHash():
+    with open(os.path.join(application_path, file_name), 'rb') as f:
+        file_hash = hashlib.sha256(f.read()).hexdigest()
+    try:
+        response = r.get('https://cyclonesstuff-default-rtdb.firebaseio.com/hash/' + version.replace('.', '') + '.json')
+        expected_hash = response.json()
+        expected_hash = str(expected_hash).strip('\"')
+        if expected_hash == 'None':
+            r.patch('https://cyclonesstuff-default-rtdb.firebaseio.com/hash.json', json={version.replace('.', ''): file_hash})
+            sys.exit()
+        sys.exit() if not isinstance(expected_hash, str) else expected_hash
+        if file_hash!= expected_hash:
+            sys.exit()
+        return None
+    except Exception as e:
+        sys.exit()
+
+def checkVersion():
+    req = 'https://cyclonesstuff-default-rtdb.firebaseio.com/version.json'
+    try:
+        res = r.get(req)
+    res = res.json()
+    return res
+    except Exception:
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.RED + Style.BRIGHT + '[ERROR]' + Style.RESET_ALL + ' Failed to retrieve new version.')
+
+def option_line(num, color, text, box_width=40):
+    prefix = Style.BRIGHT + Fore.BLACK + f'{num}:' + Style.RESET_ALL
+    colored_text = Style.BRIGHT + color + text + Style.RESET_ALL
+    visible_len = 3 + len(text)
+    pad = box_width - 2 - visible_len
+    return '│ ' + prefix + colored_text + ' ' * pad + '│'
+
+def menu():
+    res = checkVersion()
+    if res!= version:
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.YELLOW + Style.BRIGHT + '[INFO]' + Style.RESET_ALL + ' A new version of the script is available! Contact Cyclone for update assistance.')
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.YELLOW + Style.BRIGHT + '[INFO]' + Style.RESET_ALL + Style.BRIGHT + Fore.LIGHTRED_EX + f' {version}' + Fore.WHITE + ' -> ' + Fore.GREEN + f'{res}')
+    box_width = 40
+    print(Style.RESET_ALL, end='')
+    top = '┌' + '─' * (box_width - 2) + '┐'
+    title = '│' + Style.BRIGHT + Back.WHITE + Fore.BLACK + ' OPTIONS '.center(box_width - 2) + Style.RESET_ALL + '│'
+    sep = '├' + '─' * (box_width - 2) + '┤'
+    bottom = '└' + '─' * (box_width - 2) + '┘'
+    opt1_text = ' Run Bot Script'
+    opt2_text = ' Overwrite FFlags'
+    opt3_text = ' Reset FFlags'
+    opt4_text = ' Setup Configuration'
+    opt5_text = ' Listening Mode'
+    print(top)
+    print(title)
+    print(sep)
+    print(option_line('1', Fore.YELLOW, opt1_text))
+    print(option_line('2', Fore.MAGENTA, opt2_text))
+    print(option_line('3', Fore.GREEN, opt3_text))
+    print(option_line('4', Fore.BLUE, opt4_text))
+    print(option_line('5', Fore.RED, opt5_text))
+    print(bottom)
+    choice = input(Style.BRIGHT + Fore.CYAN + 'Select an option (1-5): ' + Style.RESET_ALL)
+    if choice == '1':
+        startUp()
+    return None
+
+def checkKeyUser():
+    with open(os.path.join(application_path, 'LICENSE.key'), 'r') as f:
+        key = f.readline()
+        key = key.strip()
+        try:
+            res = r.get(f'https://cyclonesstuff-default-rtdb.firebaseio.com/license_keys/{key}/username.json')
+        if res.status_code!= 200:
+            failActivation()
+        data = res.json()
+        f.close()
+        return data
+    except Exception:
+        failActivation()
+
+def get_powershell_value(wmi_class, property_name):
+    try:
+        cmd = ['powershell', '-Command', f'Get-WmiObject Win32_{wmi_class.capitalize()} | Select-Object -ExpandProperty {property_name}']
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        value = result.stdout.strip()
+        return value if value else False
+        failActivation()
+    except Exception as e:
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.RED + Style.BRIGHT + '[ERROR]' + Style.RESET_ALL + f' Error retrieving HWID info: {e}')
+        autoClose()
+
+def get_machine_hwid():
+    bios_serial = get_powershell_value('bios', 'SerialNumber')
+    baseboard_serial = get_powershell_value('baseboard', 'SerialNumber')
+    disk_serial = get_powershell_value('diskdrive', 'SerialNumber')
+    failActivation() if not all([bios_serial, baseboard_serial, disk_serial]) else None
+    raw = f'{bios_serial}-{baseboard_serial}-{disk_serial}'
+    hwid = hashlib.sha256(raw.encode()).hexdigest()
+    return hwid.strip()
+
+def getLicense():
+    key = input(Fore.BLUE + Style.BRIGHT + '[ACTIVATION]' + Style.RESET_ALL + ' Please enter your Product Key: ')
+    key = key.strip()
+    hwid = get_machine_hwid()
+    with open(os.path.join(application_path, 'LICENSE.key'), 'w+') as f:
+        f.write(key + '\n')
+        f.write(hwid)
+    f.close()
+    print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.BLUE + Style.BRIGHT + '[ACTIVATION]' + Style.RESET_ALL + ' Validating. This may take a moment...')
+    firebase_url = f'https://cyclonesstuff-default-rtdb.firebaseio.com/license_keys/{key}'
+    try:
+        res = r.get(firebase_url + '/validity.json')
+    if res.status_code!= 200:
+        failActivation()
+    data = res.json()
+    checkSuspension(data)
+    if data!= 'unactivated':
+        failActivation()
+    try:
+        r.patch(firebase_url + '.json', json={'hwid': hwid, 'validity': 'valid'})
+    print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.YELLOW + Style.BRIGHT + '[INFO]' + Style.RESET_ALL + f' Your Hardware ID {hwid} has been assigned to your Product Key {key}')
+    checkForLicense()
+    except Exception:
+        failActivation()
+    except Exception:
+        failActivation()
+
+def failActivation():
+    global error  # inserted
+    print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.RED + Style.BRIGHT + '[ERROR]' + Style.RESET_ALL + ' Failed to authenticate/validate your Product ID/Hardware ID')
+    error = True
+    autoClose()
+
+def checkSuspension(response):
+    if response == 'suspended':
+        import winsound
+    pass
+    winsound.Beep(500, 250)
+    print(Style.RESET_ALL + Back.RED + Style.BRIGHT + '[ERROR] This license is suspended! Remove this program from your system IMMEDIATELY to prevent damage to your computer!')
+    t.sleep(0.25)
+    print(Style.RESET_ALL + Fore.RED + Style.BRIGHT + '[ERROR] This license is suspended! Remove this program from your system IMMEDIATELY to prevent damage to your computer!')
+    continue
+
+def checkForLicense():
+    license_path = os.path.join(application_path, 'LICENSE.key')
+    if not os.path.exists(license_path):
+        print(Fore.WHITE + Style.BRIGHT + t.strftime('%H:%M:%S ') + Fore.BLUE + Style.BRIGHT + '[ACTIVATION]' + Style.RESET_ALL + ' License not found. Starting activation setup...')
+        t.sleep(3)
+        getLicense()
+    return None
+print(Fore.LIGHTBLUE_EX + ' _____ _ _   _         ___ _____ _____ __    _____ ' + Style.RESET_ALL)
+print(Fore.LIGHTBLUE_EX + '|  _  | | |_|_|___ ___| | |   __| __  |  |  |     |' + Style.RESET_ALL)
+print(Fore.LIGHTBLUE_EX + '|     | |  _| |   | . |_  |   __|    -|  |__|   --|' + Style.RESET_ALL)
+print(Fore.LIGHTBLUE_EX + '|__|__|_|_| |_|_|_|_  | |_|_____|__|__|_____|_____|' + Style.RESET_ALL)
+print(Fore.LIGHTBLUE_EX + '                  |___|                            ' + Style.RESET_ALL)
+print()
+print(randomColor() + random.choice(message) + Style.RESET_ALL)
+print('Alt Terminal' + Style.RESET_ALL + ' | ' + Fore.WHITE + Back.BLUE + 'Made by Cyclone (@cycl00ne_ on Discord)' + Style.RESET_ALL + ' | ' + Fore.BLUE + f'Version {version}' + Style.RESET_ALL)
+print()
+print(Back.YELLOW + Style.BRIGHT + 'Interested in a version that runs 24/7 to auto-bot your server as soon as it drops?' + Style.RESET_ALL + Fore.YELLOW + Style.BRIGHT + ' Join the Discord server or contact Cyclone for more info!' + Style.RESET_ALL)
+menu()
